@@ -61,8 +61,12 @@ jobs:
               run: npm run coverage    #to run the code coverage command defined in the project
 
             - name: Upload code coverage report
-              uses: actions/upload-artifact@v7    #to upload code coverage report as an artifact
+              uses: actions/upload-artifact@v4    #to upload code coverage report as an artifact
               with:
                   name: Code-Coverage-Result
                   path: coverage       #specify the path to the code coverage report directory
                   retention-days: 5    #specify the number of days to retain the artifact
+
+
+
+              
