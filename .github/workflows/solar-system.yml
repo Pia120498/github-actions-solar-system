@@ -1,37 +1,68 @@
 name: Solar System Workflow
 
-on: 
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-      - 'feature/*'
+on:
+    workflow_dispatch:    #to run manually from the Actions tab
+    push:
+        branches:
+            - main
+            - 'feature/*'    #to run on push to any feature branch
+
 env:
-  MONGO_URI: mongodb+srv://supercluster.d83jj.mongodb.net/superData
-  MONGO_USERNAME: superuser
-  MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+    MONGO_URI: mongodb+srv://supercluster.d83jj.mongodb.net/superData   #to provide mongodb URI
+    MONGO_USERNAME: superuser   #to store MongoDB username in repo variables
+    MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}    #to securely store MongoDB password
 
 jobs:
     unit-testing:
+        runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
         name: Unit Testing
-        runs-on: ubuntu-latest
+        
         steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4    #to check out the code from the repository
 
-        - name: Setup NodeJS Version
-          uses: actions/setup-node@v4
-          with:
-            node-version: 20
-    
-        - name: Install Dependencies
-          run: npm install
-    
-        - name: Unit Testing
-          run: npm test
-          
-        - name: Archive Test Result
-          uses: actions/upload-artifact@v4
-          with:
-            name: Mocha-Test-Result
-            path: test-results.xml
+            - name: Set up Node.js
+              uses: actions/setup-node@v4    #to set up Node.js environment
+              with:
+                  node-version: 18    #specify the version of Node.js to use
+
+            - name: Install dependencies
+              run: npm install    #to install the project dependencies
+
+            - name: Run unit tests
+              run: npm test    #to run the unit tests defined in the project
+
+            - name: Archieve test results
+              uses: actions/upload-artifact@v7    #to upload test results as an artifact
+              if: always()
+              with:
+                  name: test-results
+                  path: test-results.xml    #specify the path to the test results directory
+
+
+
+    code-coverage:
+        runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
+        name: Code Coverage
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4    #to check out the code from the repository
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4    #to set up Node.js environment
+              with:
+                  node-version: 18    #specify the version of Node.js to use
+
+            - name: Install dependencies
+              run: npm install    #to install the project dependencies
+
+            - name: Check code coverage
+              continue-on-error: true    #to allow the workflow to continue even if the code coverage command fails
+              run: npm run coverage    #to run the code coverage command defined in the project
+
+            - name: Upload code coverage report
+              uses: actions/upload-artifact@v7    #to upload code coverage report as an artifact
+              with:
+                  name: code-coverage-report
+                  path: coverage       #specify the path to the code coverage report directory
+                  retention-days: 5    #specify the number of days to retain the artifact
