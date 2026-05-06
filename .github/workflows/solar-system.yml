@@ -123,8 +123,10 @@ jobs:
                   password: ${{ secrets.GITHUB_TOKEN }}    #to use the GitHub token for authentication when logging in to GitHub Container Registry
 
             - name: Set lowercase owner
-              run: echo "OWNER_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
+              run: |
+                    OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+                    echo "OWNER_LC=$OWNER_LC" >> $GITHUB_ENV
+                    echo "Owner is $OWNER_LC"
             
             - name: Pushing image to container registries
               uses: docker/build-push-action@v4    #to build the Docker image for testing
@@ -132,7 +134,7 @@ jobs:
                   context: .    #specify the build context
                   file: ./Dockerfile    #specify the path to the Dockerfile
                   push: true    #to indicate that the image should be pushed to Docker Hub
-                  tags: ghcr.io/${{ github.env.OWNER_LC }}/solar-system:${{ github.sha }}   
+                  tags: ghcr.io/${{ env.OWNER_LC }}/solar-system:${{ github.sha }}   
                     
 
               
