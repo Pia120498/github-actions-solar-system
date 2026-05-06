@@ -13,39 +13,65 @@ env:
     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}    #to securely store MongoDB password
 
 jobs:
-    unit-testing:
-        runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
-        name: Unit Testing
+    # unit-testing:
+    #     runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
+    #     name: Unit Testing
         
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4    #to check out the code from the repository
+    #     steps:
+    #         - name: Checkout code
+    #           uses: actions/checkout@v4    #to check out the code from the repository
 
-            - name: Set up Node.js
-              uses: actions/setup-node@v4    #to set up Node.js environment
-              with:
-                  node-version: 18    #specify the version of Node.js to use
+    #         - name: Set up Node.js
+    #           uses: actions/setup-node@v4    #to set up Node.js environment
+    #           with:
+    #               node-version: 18    #specify the version of Node.js to use
             
+    #         - name: Cache NPM dependencies
+    #           uses: actions/cache@v3
+    #           with:
+    #               path: ~/.npm
+    #               key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
+    #         - name: Install dependencies
+    #           run: npm install    #to install the project dependencies
+
+    #         - name: Run unit tests
+    #           run: npm test    #to run the unit tests defined in the project
+
+    #         - name: Archieve test results
+    #           uses: actions/upload-artifact@v7    #to upload test results as an artifact
+    #           if: always()
+    #           with:
+    #               name: test-results
+    #               path: test-results.xml    #specify the path to the test results directory
+
+    unit-testing:
+          name: Unit Testing
+          runs-on: ubuntu-latest
+          container:        #added
+           image: 'node:20' #added
+          steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+        #- name: Setup NodeJS Version
+        #  uses: actions/setup-node@v4
+        #  with:
+        #    node-version: 20
             - name: Cache NPM dependencies
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
-                  path: ~/.npm
-                  key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-
-            - name: Install dependencies
-              run: npm install    #to install the project dependencies
-
-            - name: Run unit tests
-              run: npm test    #to run the unit tests defined in the project
-
-            - name: Archieve test results
-              uses: actions/upload-artifact@v7    #to upload test results as an artifact
+               path: ~/.npm
+               key: '${{ runner.os }}-node-modules-${{ hashFiles(''package-lock.json'') }}'    
+            - name: Install Dependencies
+              run: npm install
+            - name: Unit Testing
+              run: npm test
+            - name: Archive Test Result
               if: always()
+              uses: actions/upload-artifact@v4
               with:
-                  name: test-results
-                  path: test-results.xml    #specify the path to the test results directory
-
-
+                name: Mocha-Test-Result
+                path: test-results.xml
 
     code-coverage:
         runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
