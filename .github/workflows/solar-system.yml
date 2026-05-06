@@ -109,6 +109,7 @@ jobs:
         name: Docker Build
         needs: [unit-testing, code-coverage]    #to ensure that this job runs after the unit testing and code coverage jobs
         permissions:
+            contents: read
             packages: write    #to allow the workflow to write to GitHub Packages (for pushing Docker images to GHCR)
         runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
         steps:
@@ -121,13 +122,7 @@ jobs:
                   registry: ghcr.io    #to specify the GitHub Container Registry as the registry to log in to
                   username: ${{ github.repository_owner }}   #to specify the GitHub repository owner as the username for logging in to GitHub Container Registry
                   password: ${{ secrets.GITHUB_TOKEN }}    #to use the GitHub token for authentication when logging in to GitHub Container Registry
-
-            - name: Set lowercase owner
-              run: |
-                    OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-                    echo "OWNER_LC=$OWNER_LC" >> $GITHUB_ENV
-                    echo "Owner is $OWNER_LC"
-            
+      
             - name: Pushing image to container registries
               uses: docker/build-push-action@v4    #to build the Docker image for testing
               with:
@@ -135,6 +130,12 @@ jobs:
                   file: ./Dockerfile    #specify the path to the Dockerfile
                   push: true    #to indicate that the image should be pushed to Docker Hub
                   tags: ghcr.io/${{ env.OWNER_LC }}/solar-system:${{ github.sha }}   
-                    
+
+
+            - name: Set lowercase owner
+              run: |
+                    OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+                    echo "OWNER_LC=$OWNER_LC" >> $GITHUB_ENV
+                    echo "Owner is $OWNER_LC"
 
               
