@@ -99,8 +99,7 @@ jobs:
                   context: .    #specify the build context
                   file: ./Dockerfile    #specify the path to the Dockerfile
                   push: true    #to indicate that the image should be pushed to Docker Hub
-                  tags: |
-                      ghcr.io/${{ env.OWNER_LC }}/solar-system:${{ github.sha }}   
-                      ${{vars.DOCKER_USERNAME}}/solar-system:${{github.sha}}  
+                  tags: ghcr.io/${{ env.OWNER_LC }}/solar-system:${{ github.sha }}   
+                     
 
               
