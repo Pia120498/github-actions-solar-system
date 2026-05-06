@@ -121,6 +121,9 @@ jobs:
        with:
         context: .
         push: true
-        tags: 'ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}'
-
-              
+        tags: 'ghcr.io/${{ env.OWNER_LC }}/solar-system:${{ github.sha }}'
+     - name: Set lowercase owner 
+       run: |
+            OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            echo "OWNER_LC=$OWNER_LC" >> $GITHUB_ENV
+            echo "Owner is $OWNER_LC"
