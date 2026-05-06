@@ -106,36 +106,21 @@ jobs:
 
 
     docker:
-        name: Docker Build
-        needs: [unit-testing, code-coverage]    #to ensure that this job runs after the unit testing and code coverage jobs
-        permissions:
-            contents: read
-            packages: write    #to allow the workflow to write to GitHub Packages (for pushing Docker images to GHCR)
-        runs-on: ubuntu-latest    #to run the job on the latest version of Ubuntu
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4    #to check out the code from the repository
-
-            - name: Log in to GCHR
-              uses: docker/login-action@v2    #to log in to GHCR using credentials stored in GitHub secrets
-              with:
-                  registry: ghcr.io    #to specify the GitHub Container Registry as the registry to log in to
-                  username: ${{ github.repository_owner }}   #to specify the GitHub repository owner as the username for logging in to GitHub Container Registry
-                  password: ${{ secrets.GITHUB_TOKEN }}    #to use the GitHub token for authentication when logging in to GitHub Container Registry
-      
-            - name: Pushing image to container registries
-              uses: docker/build-push-action@v4    #to build the Docker image for testing
-              with:
-                  context: .    #specify the build context
-                  file: ./Dockerfile    #specify the path to the Dockerfile
-                  push: true    #to indicate that the image should be pushed to Docker Hub
-                  tags: ghcr.io/${{ env.OWNER_LC }}/solar-system:${{ github.sha }}   
-
-
-            - name: Set lowercase owner
-              run: |
-                    OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-                    echo "OWNER_LC=$OWNER_LC" >> $GITHUB_ENV
-                    echo "Owner is $OWNER_LC"
+     runs-on: ubuntu-latest
+     needs:
+     - code-coverage
+     - unit-testing
+     steps:
+     - uses: actions/checkout@v4
+     - uses: docker/login-action@v3
+       with:
+        registry: ghcr.io
+        username: '${{ github.repository_owner }}'
+        password: '${{ secrets.GITHUB_TOKEN }}'
+     - uses: docker/build-push-action@v6
+       with:
+        context: .
+        push: true
+        tags: 'ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}'
 
               
